@@ -334,17 +334,16 @@ standing there shaking our bag of marbles? If we were to repeat this
 marble-shaking process, how long might we \emph{expect} to stand there? To
 answer these questions, we can use a continuous time chain.
 
-Suppose that our bag starts with some fixed, finite amount of marbles. Denote
-the number of marbles in the bag as $i$. The rate that marbles fly out of the
-bag seems roughly proportional to the amount of marbles left, call it $di$ for
-some constant $d$. Since the marbles surely did not fall out at exactly this
-rate, our rate is not a \emph{rate} so much as it is a \emph{probability}.
-That is, the \emph{probability} of a marble flying out over a small enough time
-period $\Delta t$ is something like $di \Delta t$.
+Assume that our bag starts with some fixed, finite amount of marbles. Denote
+the number of marbles in the bag as $i$. We will assume that the rate that
+marbles fly out of the bag is roughly proportional to the amount of marbles
+left, say $di$ for some constant $d$. Since the marbles surely did not fall out
+at exactly this rate, our rate is not a \emph{rate} so much as it is a
+\emph{probability}.  That is, the \emph{probability} of a marble flying out
+over a small enough time period $\Delta t$ is something like $di \Delta t$.
 
 With these assumptions, we can define a continuous time Markov chain to model
-this process, called the simple death process. Using it, we can investigate our
-marble-shaking activity.
+this process, called the simple death process.
 
 \begin{defn}[Simple Death Process]
 The \emph{simple death process} is a continuous time Markov chain on the state
@@ -382,10 +381,14 @@ Our marbles are thrown from the bag at exponentially distributed times.
 \end{thm}
 
 \begin{proof}
-Note that $$\sum_{k = 0, k \neq i}^\infty p_{ki}(\Delta t) = di \Delta t +
-o(\Delta t).$$ Therefore, Theorem~\ref{thm:general-holding-times} implies that
-the holding time $T_k$ when $X(W_k) = i$ is exponentially distributed with mean
-$1/di$.
+Note that
+\begin{align*}
+    \sum_{k = 0, k \neq i}^\infty p_{ki}(\Delta t)
+        &= di \Delta t + o(\Delta t) \\
+    p_{ii}(\Delta t) &= 1 - di \Delta t + o(\Delta t).
+\end{align*}
+Therefore, Theorem~\ref{thm:general-holding-times} implies that the holding
+time $T_k$ when $X(W_k) = i$ is exponentially distributed with mean $1/di$.
 \end{proof}
 
 No matter how many marbles we start with, we will eventually have none left in
@@ -415,9 +418,10 @@ following computations yield
 \end{align*}
 (For $i = 0$, the later computation still holds.) Since $q_{ii} = -\sum_{k = 0,
 k \neq i}^\infty q_{ki} = 0$ and $q_{ij} \geq 0$ for $i \neq j$, it is clear
-that these are the only two (potentially) nonzero elements. For $i = 0$ we see
-that $q_{ii} = 0$, so the state $i = 0$ is absorbing. Thus our generator matrix
-is \[ Q =
+that these are the only two (potentially) nonzero elements. Note that $q_{ii} =
+0$. Thus our generator matrix is
+\begin{equation*}
+    Q =
     \begin{bmatrix}
         0 & d & 0 & 0 & 0 & \cdots \\
         0 & -d & 2d & 0 & 0 & \cdots \\
@@ -426,10 +430,10 @@ is \[ Q =
         0 & 0 & 0 & 0 & -4d & \cdots \\
         \vdots & \vdots & \vdots & \vdots & \vdots & \ddots \\
     \end{bmatrix}.
-\]
-Referring to Theorem~\ref{thm:embedded-transition-matrix}, we see that the
-transition matrix for our embedded chain is
-\[
+\end{equation*}
+Referring to Theorem~\ref{thm:embedded-transition-matrix}, the transition
+matrix for our embedded chain is
+\begin{equation*}
     T =
     \begin{bmatrix}
         1 & 1 & 0 & 0 & 0 & \cdots \\
@@ -439,11 +443,10 @@ transition matrix for our embedded chain is
         0 & 0 & 0 & 0 & 0 & \cdots \\
         \vdots & \vdots & \vdots & \vdots & \vdots & \ddots \\
     \end{bmatrix}.
-\]
+\end{equation*}
 That is, the only event in the chain is $i \to i - 1$, and the state $i = 0$ is
-absorbing, as we observed. For any initial state $s$ and any nonzero state $j$,
-the process will decrease below $j$ in $s - j$ steps. Thus, the process will
-decrease to zero and remain there from any initial state.
+absorbing. For any initial state $s$ and any nonzero state $j$, the process
+will reach state zero in $s - j$ steps and remain there from any initial state.
 \end{proof}
 
 How long might we wait while we fling marbles from the bag until they are all
@@ -463,13 +466,12 @@ of exponential decay, which is suggested by Figure~\ref{fig:plot_death}.
 \end{thm}
 
 \begin{proof}
-From the transition matrix for the embedded chain, we see that the death
-process decreases by exactly one at each jump time. Thus, the time until
-reaching state $s - j$ from $s$ is the sum of the first $j$ holding times,
-denote this by $H$. That is, $$H = \sum_{0 \leq k < j} T_k.$$ At the $k$th
-holding time, we have decreased by $k$ states from $s$, so $X(W_k) = s - k$.
-Therefore $T_k$ is exponentially distributed with mean $1/d(s - k)$. It follows
-that
+From the transition matrix for the embedded chain, the death process decreases
+by exactly one at each jump time. Thus, the time until reaching state $s - j$
+from $s$ is the sum of the first $j$ holding times, denote this by $H$. That
+is, $$H = \sum_{0 \leq k < j} T_k.$$ At the $k$th holding time, we have
+decreased by $k$ states from $s$, so $X(W_k) = s - k$.  Therefore $T_k$ is
+exponentially distributed with mean $1/d(s - k)$. It follows that
 \begin{align*}
     E[H] = \sum_{0 \leq k < j} E[T_k]
          &= \sum_{0 \leq k \leq j - 1} \frac{1}{d (s - k)} \\
@@ -477,8 +479,7 @@ that
          &= \frac{1}{d} \sum_{s + 1 - j \leq k \leq s} \frac{1}{k} \\
          &= \frac{H_s - H_{s - j}}{d}.
 \end{align*}
-Setting $j = s$, we see that the mean time to extinction is the desired
-$H_s/d$.
+Setting $j = s$ yields $H_s / d$ as the desired mean time to extinction.
 \end{proof}
 
 Since this is something like the discrete analog of an exponential decay
@@ -487,8 +488,8 @@ exponential decay models. Consider the exponential decay function $$f(t) = a
 e^{-rt}$$ where $a$ and $r$ are positive parameters describing the initial
 population size and rate of decay, respectively. The function $f$ has no zeros,
 but we may determine the time at which it reaches any population value below
-$a$, say $a - \epsilon$. Indeed, for any $\epsilon \in [0, a)$, we see that $a
-- \epsilon$ is reached at time $$t = \frac{\ln{a} - \ln(a - \epsilon)}{r}.$$
+$a$, say $a - \epsilon$. Indeed, for any $\epsilon \in [0, a)$, the value $a -
+\epsilon$ is reached at time $$t = \frac{\ln{a} - \ln(a - \epsilon)}{r}.$$
 Notice that this form is remarkably similar to the mean time to reach $s - j$
 derived above. We have essentially replaced the harmonic numbers with
 logarithms:
