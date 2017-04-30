@@ -165,21 +165,32 @@ def plot_deterministic_pred_prey(*args, **kwargs):
     Phase plane is plotted on figure 0, and the time plot is on figure 1.
 
     :*args: Extra arguments to pass to deterministic_pred_prey().
-    :**kwargs: Keyword arguments to pass to deterministic_pred_prey().
-    :returns: Nothing.
+    :**kwargs: Keywork arguments to pass to deterministic_pred_prey(). If
+               "figure" is present, then uses that figure and the next figure
+               (figure.number + 1) to plot the phase plane and time plot,
+               respectively. Else uses figures 0 and 1, respectively.
+    :returns: Fignum of the later figure.
 
     """
+    if "figure" in kwargs:
+        fignum = kwargs["figure"].number
+        del kwargs["figure"]
+    else:
+        fignum = 0
+
     ts, ys = deterministic_pred_prey(*args, **kwargs)
 
     prey, pred = ys[:, 0], ys[:, 1]
 
-    plt.figure(0)
+    plt.figure(fignum)
     plt.plot(prey, pred)
 
-    plt.figure(1)
+    plt.figure(fignum + 1)
     plt.plot(ts, prey, label="Deterministic Prey")
     plt.plot(ts, pred, label="Deterministic Predator")
-    plt.legend()
+    plt.legend(fontsize="x-large")
+
+    return fignum + 1
 
 def step_plot_pred_prey(*args, **kwargs):
     """Plot a step plot of solutions to the stochastic predator-prey process.
@@ -187,26 +198,37 @@ def step_plot_pred_prey(*args, **kwargs):
     Phase plane is plotted on figure 0, and the time plot is on figure 1.
 
     :*args: Extra arguments to pass to stochastic_pred_prey().
-    :**kwargs: Keywork arguments to pass to stochastic_pred_prey().
-    :returns: Nothing.
+    :**kwargs: Keywork arguments to pass to stochastic_pred_prey(). If "figure"
+               is present, then uses that figure and the next figure
+               (figure.number + 1) to plot the phase plane and time plot,
+               respectively. Else use figures 0 and 1, respectively.
+    :returns: Fignum of the later figure.
     """
+    if "figure" in kwargs:
+        fignum = kwargs["figure"].number
+        del kwargs["figure"]
+    else:
+        fignum = 0
+
     res = stochastic_pred_prey(*args, **kwargs)
     X, Y, T = np.array(list(res)).T
 
-    plt.figure(0)
+    plt.figure(fignum)
     plt.step(X, Y, where="post")
     plt.plot(X[0], Y[0], "ko", ms=10)
     plt.plot(X[-1], Y[-1], "ro", ms=10)
-    plt.xlabel("Prey")
-    plt.ylabel("Predators")
-    plt.title("Stochastic Predator-Prey Realization")
+    plt.xlabel("Prey", fontsize="x-large")
+    plt.ylabel("Predators", fontsize="x-large")
+    plt.title("Stochastic Predator-Prey Realization", fontsize="x-large")
 
-    plt.figure(1)
+    plt.figure(fignum + 1)
     plt.step(T, X, label="Prey", where="post")
     plt.step(T, Y, label="Predators", where="post")
-    plt.xlabel("Time")
-    plt.ylabel("Population")
-    plt.legend()
+    plt.xlabel("Time", fontsize="x-large")
+    plt.ylabel("Population", fontsize="x-large")
+    plt.legend(fontsize="x-large")
+
+    return fignum + 1
 
 def compare_models(*args, **kwargs):
     """Plot both the deterministic and stochastic models at once.
@@ -219,7 +241,7 @@ def compare_models(*args, **kwargs):
 
     """
     plot_deterministic_pred_prey(*args, **kwargs)
-    step_plot_pred_prey(*args, **kwargs)
+    return step_plot_pred_prey(*args, **kwargs)
 
 def _main():
     # This set of parameters will produce cycles and extinctions depending on the
@@ -229,8 +251,56 @@ def _main():
          [.01, 10]]
     )
 
-    prey_start = 100
-    pred_start = 30
+    # This set of parameters keeps things closer to the axes, making it easier
+    # to sling something into extinction.
+    smaller_params = np.array(
+        [[10, .1],
+         [.1, 10]]
+    )
+
+    eq_prey_start = 1000
+    eq_pred_start = 1000
+
+    determ_prey_start = 700
+    determ_pred_start = 900
+
+    small_prey_start = 90
+    small_pred_start = 90
+
+    plt.style.use("ggplot")
+
+    """
+    eq_plot = plt.figure()
+    eq_fignum = step_plot_pred_prey(eq_prey_start, eq_pred_start, cycle_params,
+                                        3, figure=eq_plot)
+
+    plt.figure(eq_fignum)
+    eq_second_fig = plt.gcf()
+
+    determ_plot = plt.figure()
+    determ_fignum = compare_models(determ_prey_start, determ_pred_start,
+                                    cycle_params, 3, figure=determ_plot)
+    plt.figure(determ_fignum)
+    determ_second_fig = plt.gcf()
+
+    """
+    small_plot = plt.figure()
+    small_fignum = step_plot_pred_prey(small_prey_start, small_pred_start,
+                                        smaller_params, 20,
+                                        figure=small_plot)
+    plt.figure(small_fignum)
+    small_second_fig = plt.gcf()
+
+    """
+    eq_plot.savefig("equilibrium_phase.pdf", dpi=500)
+    eq_second_fig.savefig("equilibrium_time.pdf", dpi=500)
+
+    determ_plot.savefig("comparison_phase.pdf", dpi=500)
+    determ_second_fig.savefig("comparison_time.pdf", dpi=500)
+    """
+
+    small_plot.savefig("small_phase.pdf", dpi=500)
+    small_second_fig.savefig("small_time.pdf", dpi=500)
 
 if __name__ == "__main__":
     _main()

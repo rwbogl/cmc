@@ -82,7 +82,7 @@ def plot_birth_death(start, brate, drate, num=1, continuous=False,
         ys = start * np.exp((brate - drate) * xs)
         plt.plot(xs, ys, label="Exponential population")
 
-    plt.legend()
+    plt.legend(fontsize="x-large")
 
 def stacked_death_plot(expected_extinction, top):
     """
