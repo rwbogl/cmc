@@ -41,35 +41,46 @@
 Most mathematicians have, at best, a basic understanding of the history of
 their field. This understanding is usually developed by hearing legends of the
 giants of the field---the Eulers, the Fermats, the Cauchys, and so on. Every
-mathematician has heard of the contributions of these giants, but maybe they
-are not familiar with details of their developments. Walter Rudin once remarked
-that ``mathematicians are not very qualified to do the history of
+mathematician has heard of their contributions, but maybe they are not familiar
+with details. In \cite{rudin2014offspring}, Walter Rudin remarks that
+``mathematicians are not very qualified to do the history of
 mathematics---historians are maybe even less qualified, because you can't write
 about it unless you understand it, and once you start studying mathematics for
 its own sake, you get too interested in it and you don't want to take time to
-go into the history'' \citep{rudin2014offspring}. The advantages and
-disadvantages of this attitude can be debated, but it has introduced some
-difficulty in studying the history of continuous time Markov chains. There is
-little material on their historical development, though some early papers (in
-Russian) are available. Nevertheless, we will discuss what we can.
+go into the history.'' This attitude has introduced some difficulty in studying
+the history of continuous time Markov chains. There is little material on their
+historical development, though some early papers (in Russian) are available.
+Fortunately, continuous time chains were created at the same time probability
+theory began to flourish.
 
-In 1930, A.~N.~Kolmogorov was a promising young Russian mathematician. He had
-just received his doctorate from Moscow State University, the ``rival'' of
-St.~Petersburg University where Markov and Chebyshev studied. By the time of
-his graduation, Kolmogorov had published three influential papers in
-probability.  Most notably one proved a generalization of Chebyshev's Theorem,
-now called Kolmogorov's Theorem. Kolmogorov's Theorem bounds the probability
-that the partial sums of a finite collection of random variables exceed fixed
-values. To be exact, if $X_1, X_2, \dots, X_n$ is a collection of independent
-random variables, then
+The early twentieth century was a dangerous time for probability. The field,
+typically considered a mere subset of statistics, was beginning to push against
+its confines. Probability wanted to become a genuine part of mathematics rather
+than an afterthought left to the ``real-world.'' This required pressing the
+intuitive definitions of probability. What does it mean for an event to have a
+certain probability? Does that imply anything about the event in the real
+world? What about all of the strange, mutated counterexamples that are being
+created due to a closer look at analysis? Do those work in probability? There
+were no good answers, and the older mathematical giants were appalled at the
+work of the younger mathematicians.
+
+In 1930, A.~N.~Kolmogorov was one of those promising young mathematicians. He
+had just received his doctorate from Moscow State University, the ``rival'' of
+St.~Petersburg University, where Markov and Chebyshev studied. By the time of
+his graduation Kolmogorov already had an enviable body of work. He had
+published three influential papers, one of which proved a generalization of
+Chebyshev's Theorem, now called Kolmogorov's Theorem. Kolmogorov's Theorem
+bounds the probability that the partial sums of a finite collection of random
+variables exceed fixed values. To be exact, if $X_1, X_2, \dots, X_n$ is a
+collection of independent random variables, then
 \begin{equation*}
     P \left(\max_{1 \leq k \leq n} \sum_{j = 1}^k X_j \geq \lambda \right)
         \leq
         \frac{\var \left( \sum_{j = 1}^n X_j \right)}{\lambda^2} =
         \frac{\sum_{j = 1}^n \var(X_j)}{\lambda^2}.
 \end{equation*}
-The remaining papers tackled problems in measure theory and the convergence of
-series whose terms are independent random variables.
+\citet{cramer1976century} describes this inequality as ``an invaluable tool in
+all investigations concerning sums of independent variables.''
 
 In 1931, Kolmogorov introduced a generalization of (discrete) Markov chains by
 allowing their time parameter to vary continuously. These stochastic processes
@@ -79,18 +90,28 @@ processes satisfied, now called the Kolmogorov equations. Today these
 generalizations are known as \emph{continuous time Markov chains}, and form a
 large area of study in stochastic processes. They have been used to model
 various biological processes, queueing networks, and problems in risk theory.
+Unfortunately there does not seem to be much on their development, other than
+that they were a natural extension of discrete time Markov chains given the
+development of continuous time stochastic processes in this period.
 
-When Markov introduced his discrete time chains he had few applications in
-mind. Despite this, Markov chains exploded in popularity both in and outside of
-mathematics, and their study carved out its own field in the theory of
-stochastic processes. It would seem that Markov was not content to start one
-field of study---he had to lay the groundwork for Kolmogorov to found a second
-as well.
+In 1933, Kolmogorov published \emph{Grundbegriffe der
+Wahrscheinlichkeitsrechnung} (Foundations of the Theory of Probability). This
+text tied together all of the previous work on formalizing probability theory.
+It is where we derive our modern probability axioms. On the importance of this
+work, \citet{shafer2006sources} write that ``[w]e know Kolmogorov and what came
+after; we have mostly forgotten what came before.'' Probability theory had been
+in use for many years, as indicated by Kolmogorov's own earlier results. But
+this is true in the sense that Euclid did not create geometry all at once with
+his \emph{Elements}. Like the \emph{Elements}, Kolmogorov's
+\emph{Grundbegriffe} was a formal synthesis of what the community had strove
+towards for many years. 
 
-More details on Kolmogorov and the development on probability theory from
-1920--1970 in general can be found in \cite{cramer1976century}. For a ``state
-of the art'' summary of stochastic processes in 1949, see
-\cite{feller1949theory}.
+For a discussion on the rigorous development of probability theory in the
+twentieth century, see \cite{doob1996development}. For a discussion of
+Kolmogorov's \emph{Grundbegriffe}, see \cite{shafer2006sources}. For details on
+the development of probability theory from 1920--1970 from the viewpoint of a
+contemporary, see \cite{cramer1976century}. For a ``state of the art'' summary
+of stochastic processes in 1949, see \cite{feller1949theory}.
 
 \section{Preliminaries}
 \label{sec:preliminaries}
@@ -118,10 +139,9 @@ Markov property. That is, for any sequence of states $\{i_k\}$ and any integer
 $n$, $$P(X_{n + 1} = i_{n + 1} \mid X_n = i_n, X_{n - 1} = i_{n - 1}, \dots,
 X_0 = i_0) = P(X_{n + 1} = i_{n + 1} \mid X_n = i_n).$$ That is, the
 probability of the chain entering the state $i$ at the time $n + 1$ is only
-dependent on where the chain is at time $n$, and no times before it.
-
-Rather than use discrete time chains, our applications will use
-\emph{continuous} time chains.
+dependent on where the chain is at time $n$, and no times before it. Rather
+than use discrete time chains, our applications will use \emph{continuous} time
+chains.
 
 \begin{defn}[Continuous time chains]
     \label{defn:continuous-chain}
@@ -602,16 +622,14 @@ from cycle to cycle, behaving \emph{almost} periodically, but not exactly.
 \begin{figure}[p]
     \centering
     \begin{subfigure}{.5\textwidth}
-        \includegraphics[width=\linewidth]{./violent_phase}
+        \includegraphics[width=\linewidth]{./small_phase}
         \caption{Phase plane realization of the stochastic predator prey model
         with $a_{00} = 10$, $a_{01} = 0.1$, $a_{10} = 0.1$, and $a_{11} =
-        10$. The deterministic model has an equilibrium point at $(100, 100)$.
-        Both pictured solutions begin at the same point, slightly to the left
-        of and below $(100, 100)$.}
+        10$. The deterministic model has an equilibrium point at $(100, 100)$.}
     \end{subfigure}%
     ~~~
     \begin{subfigure}{.5\textwidth}
-        \includegraphics[width=\linewidth]{./violent_time}
+        \includegraphics[width=\linewidth]{./small_time}
         \caption{Time plot of predator and prey populations from the pictured
         phase plane. The increasing amplitute of the populations in the first
         solution indicate populations growing beyond reasonable limits,
@@ -621,23 +639,21 @@ from cycle to cycle, behaving \emph{almost} periodically, but not exactly.
     \label{fig:violent-cycles}
 \end{figure}
 
-Figure~\ref{fig:violent-cycles} shows two solutions that begin at exactly the
-same point, close to the unique equilibrium point. In contrast to the
-deterministic model, the two solutions do not coincide. The first dies out at a
-finite time, while the second continues to hover close to the equilibrium
-point. The behavior of the stochastic model is much more violent than its
-deterministic counterpart. Both solutions jump from cycle to cycle, but the
-first jumped from the equilibrium point and was thrown too close to extinction
-to recover. This is a key difference from the deterministic model. Before it
-was \emph{impossible} for such populations to die out---now it is common.
+Figure~\ref{fig:violent-cycles} shows a solution beginning close to the unique
+equilibrium point. In contrast to the deterministic model, the population dies
+out at a finite time. The behavior of the stochastic model is much more violent
+than its deterministic counterpart. Both solutions jump from cycle to cycle,
+but the first jumped from the equilibrium point and was thrown too close to
+extinction to recover. This is a key difference from the deterministic model.
+Before it was \emph{impossible} for such populations to die out---now it is
+common.
 
 Figure~\ref{fig:violent-cycles} highlights another important property of the
 model. Solutions tend to gravitate towards equilibrium points, and will do so
 more violently the further they begin from them. An equilibrium point close to
 either of the axes will increase the chances that some random event will cause
 extinction. Had the equilibrium point in Figure~\ref{fig:violent-cycles} been
-further from the axes, it may be that the first population would have
-recovered, as we saw in Figure~\ref{fig:broken-eq-pts}.
+further from the axes, it may be that the population would have recovered.
 
 This stochastic model, though more difficult to analyze than its deterministic
 counterpart, may give more realistic results.
@@ -647,7 +663,9 @@ counterpart, may give more realistic results.
 
 We have presented two continuous time Markov chains from
 \cite{allen2010introduction}: the simple death process and the stochastic
-predator-prey model.
+predator-prey model. The code used to produce every image in this document, as
+well as the \LaTeX\ source of the document itself, can be found at the author's
+GitHub repository: \url{https://github.com/rwbogl/cmc}.
 
 The simple death process, used to model our marble-shaking exercise, was
 analyzed fairly well. The overall behavior of the process is completely
@@ -669,9 +687,9 @@ questions that could be asked. For example, Figure~\ref{fig:stacked-death}
 shows ten death processes from Section~\ref{sec:simple_death_process} with
 initial populations 1--5. The death rate of each process is set so that the
 processes all have the same expected extinction time. What is the probability
-that all processes will become extinct at exactly the same time? Rather than
-questions such as this, we could investigate applications of continuous time
-Markov chains, such as in Markov Chain Monte Carlo (MCMC) random sampling.
+that all processes will become extinct at exactly the same time? More
+application-based projects may investigate using continuous time Markov chains
+in Markov Chain Monte Carlo (MCMC) random sampling or something related.
 
 \begin{figure}[b]
     \centering
@@ -682,7 +700,7 @@ Markov chains, such as in Markov Chain Monte Carlo (MCMC) random sampling.
     \label{fig:stacked-death}
 \end{figure}
 
-\pagebreak
+\clearpage
 
 \bibliography{cite}
 
