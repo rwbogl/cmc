@@ -1,0 +1,689 @@
+\documentclass[12pt]{article}
+
+\usepackage[colorlinks=true]{hyperref}
+\usepackage[]{geometry} 
+\usepackage[]{changepage}
+\usepackage[]{amsthm} 
+\usepackage[]{amsmath} 
+\usepackage[]{times} 
+\usepackage[]{graphicx} 
+\usepackage[sort, numbers]{natbib} 
+\usepackage[]{subcaption} 
+
+\DeclareMathOperator{\var}{Var}
+
+\bibliographystyle{abbrvnat}
+
+\renewenvironment{proof}{%
+\begin{adjustwidth}{\parindent}{\parindent}
+{\bf Proof} \ \ 
+}{\qed
+\end{adjustwidth}}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+
+\theoremstyle{definition}
+
+\newtheorem{defn}{Definition}
+
+\title{Continuous Time Markov Chains}
+\author{R.~Dougherty-Bliss}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Historical Remarks}
+\label{sec:historical_remarks}
+
+Most mathematicians have, at best, a basic understanding of the history of
+their field. This understanding is usually developed by hearing legends of the
+giants of the field---the Eulers, the Fermats, the Cauchys, and so on. Every
+mathematician has heard of the contributions of these giants, but maybe they
+are not familiar with details of their developments. Walter Rudin once remarked
+that ``mathematicians are not very qualified to do the history of
+mathematics---historians are maybe even less qualified, because you can't write
+about it unless you understand it, and once you start studying mathematics for
+its own sake, you get too interested in it and you don't want to take time to
+go into the history'' \citep{rudin2014offspring}. The advantages and
+disadvantages of this attitude can be debated, but it has introduced some
+difficulty in studying the history of continuous time Markov chains. There is
+little material on their historical development, though some early papers (in
+Russian) are available. Nevertheless, we will discuss what we can.
+
+In 1930, A.~N.~Kolmogorov was a promising young Russian mathematician. He had
+just received his doctorate from Moscow State University, the ``rival'' of
+St.~Petersburg University where Markov and Chebyshev studied. By the time of
+his graduation, Kolmogorov had published three influential papers in
+probability.  Most notably one proved a generalization of Chebyshev's Theorem,
+now called Kolmogorov's Theorem. Kolmogorov's Theorem bounds the probability
+that the partial sums of a finite collection of random variables exceed fixed
+values. To be exact, if $X_1, X_2, \dots, X_n$ is a collection of independent
+random variables, then
+\begin{equation*}
+    P \left(\max_{1 \leq k \leq n} \sum_{j = 1}^k X_j \geq \lambda \right)
+        \leq
+        \frac{\var \left( \sum_{j = 1}^n X_j \right)}{\lambda^2} =
+        \frac{\sum_{j = 1}^n \var(X_j)}{\lambda^2}.
+\end{equation*}
+The remaining papers tackled problems in measure theory and the convergence of
+series whose terms are independent random variables.
+
+In 1931, Kolmogorov introduced a generalization of (discrete) Markov chains by
+allowing their time parameter to vary continuously. These stochastic processes
+were called ``Markov Processes'' at the time. Kolmogorov established a system
+of differential equations that probability distributions related to these
+processes satisfied, now called the Kolmogorov equations. Today these
+generalizations are known as \emph{continuous time Markov chains}, and form a
+large area of study in stochastic processes. They have been used to model
+various biological processes, queueing networks, and problems in risk theory.
+
+When Markov introduced his discrete time chains he had few applications in
+mind. Despite this, Markov chains exploded in popularity both in and outside of
+mathematics, and their study carved out its own field in the theory of
+stochastic processes. It would seem that Markov was not content to start one
+field of study---he had to lay the groundwork for Kolmogorov to found a second
+as well.
+
+More details on Kolmogorov and the development on probability theory from
+1920--1970 in general can be found in \cite{cramer1976century}. For a ``state
+of the art'' summary of stochastic processes in 1949, see
+\cite{feller1949theory}.
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+Continuous time chains are Markov chains with a continuous time variable rather
+than a discrete one. This allows us to model occurrences over arbitrary time
+intervals rather than discrete ones. In some ways the analysis of continuous
+time chains is simpler than discrete time chains. There are no periods to
+determine and no matrix multiplication to carry out. In other ways the analysis
+is more complex. There are now ordinary and partial differential equations to
+consider rather than ``simple'' matrix theory.
+
+We will only present a skeleton of the general theory suitable for our needs.
+Interested readers should consult a text on stochastic processes. For a brief
+introduction to continuous chains with applications to biology, see
+\citet{allen2010introduction}. For a more advanced introduction with
+computational discussions, see \citet{kao1997introduction}. For a
+mathematically rigorous discussion that assumes, say, a course in real
+analysis, see \citet{berger2012introduction}. For a text focused on Markov
+chains in general at a similar level, see \citet{bremaud1998markov}.
+
+Recall that a discrete time Markov chain is a collection of random variables
+$\{X_n\}$ taking values in the state space $\{1, 2, \dots\}$ that obey the
+Markov property. That is, for any sequence of states $\{i_k\}$ and any integer
+$n$, $$P(X_{n + 1} = i_{n + 1} \mid X_n = i_n, X_{n - 1} = i_{n - 1}, \dots,
+X_0 = i_0) = P(X_{n + 1} = i_{n + 1} \mid X_n = i_n).$$ That is, the
+probability of the chain entering the state $i$ at the time $n + 1$ is only
+dependent on where the chain is at time $n$, and no times before it.
+
+Rather than use discrete time chains, our applications will use
+\emph{continuous} time chains.
+
+\begin{defn}[Continuous time chains]
+    \label{defn:continuous-chain}
+    The continuous time stochastic process $\{X(t)\}$, $t \in [0, \infty)$ is
+    called a \emph{continuous-time Markov chain} iff, for every increasing
+    sequence of reals $0 \leq t_0 < t_1 < \cdots < t_n < t_{n + 1}$ and every
+    sequence of states $i_0, i_1, \dots, i_n, i_{n + 1}$,
+    \begin{align*}
+    P(X(t_{n + 1}) &= i_{n + 1} \mid X(t_n) = i_n, \dots, X(t_1) = i_1, X(t_0)
+    = i_0) \\
+    &= P(X(t_{n + 1}) = i_{n + 1} \mid X(t_n) = i_n).
+    \end{align*}
+\end{defn}
+
+\begin{defn}
+    \label{defn:transition-probs}
+    Let $\{X(t)\}$ be a continuous-time Markov chain. Then the probability of
+    transitioning from state $j$ to $i$ from time $s$ to $t$, where $s < t$, is
+    denoted $$p_{ij}(t, s) = P(X(t) = i \mid X(s) = j).$$ (The conventional
+    subscript order is $ji$, but we are reversing it.)
+\end{defn}
+
+\begin{defn}
+    \label{defn:homogenous-chain}
+    If the transition probabilities of a chain do not depend on $t$ and $s$,
+    but only the length of the interval $\Delta t = t - s$, then the chain is
+    said to be \emph{homogeneous}, \emph{time-homogeneous}, or
+    \emph{stationary}. In this case we simply write $p_{ij}(\Delta t)$ for each
+    $\Delta t \geq 0$.
+\end{defn}
+
+All chains that we consider are homogeneous unless otherwise noted.
+
+\begin{defn}
+    \label{defn:transition-matrix}
+    The \emph{transition matrix at time $t$} is defined as $$P(t) =
+    (p_{ij}(t)).$$
+\end{defn}
+
+We often define \emph{discrete} time chains by giving a valid transition
+matrix. Continuous time chains can be similarly defined, usually via
+``infinitesimal'' transition probabilities. That is, we define $p_{ij}(\Delta
+t)$ for ``small'' $\Delta t$. With this method we often make use of the
+little-o notation $o(g(t))$.
+
+\begin{defn}
+    \label{defn:order-notation}
+    We say that a function $f$ is \emph{little o (``oh'') of $g$}, or $f(t) =
+    o(g(t))$, provided that
+    \[
+        \lim_{t \to 0^+} \frac{f(t)}{g(t)} = 0.
+    \]
+\end{defn}
+
+There are two further matrices that play important roles in analyzing
+continuous-time chains. The transition matrix $P(t)$ of a continuous time chain
+is the solution to a differential equation involving a matrix known as the
+generator matrix $Q$.
+
+\begin{defn}
+    \label{defn:kronecker-delta}
+    The symbol $\delta_{ij}$ is the \emph{Kronecker delta}, defined as
+    \[
+        \delta_{ij} =
+        \begin{cases}
+            1, & \text{if } i = j \\
+            0, & \text{if } i \neq j.
+        \end{cases}
+    \]
+\end{defn}
+
+\begin{defn}
+    \label{defn:transition-rates}
+    Assume that the transition probabilities $p_{ij}(t)$ are continuous and
+    differentiable for $t \geq 0$ and satisfy $p_{ij}(0) = \delta_{ij}$, where
+    $\delta_{ij}$ is the Kronecker delta. Define the \emph{generator matrix
+    $Q$} as $$Q = P'(0).$$ The elements of $Q = (q_{ij})$ are called
+    \emph{transition rates}, and they satisfy
+    \[
+        q_{ij} = p_{ij}'(0) = \lim_{\Delta t \to 0^+} \frac{p_{ij}(\Delta t) -
+        p_{ij}(0)}{\Delta t} = \lim_{\Delta t \to 0^+} \frac{p_{ij}(\Delta t) -
+        \delta_{ij}}{\Delta t}.
+    \]
+\end{defn}
+
+A continuous time chain enters a state, stays there for an amount of time, then
+leaves the state. The times that these ``jumps'' occur are called jump times.
+
+\begin{defn}
+    \label{defn:holding-time}
+    Let $W_0 = 0$ and $W_n$ be the time that the chain transitions for the
+    $n$th time. Then the sequence $T_n = W_{n + 1} - W_n$, $n \geq 0$ are the
+    \emph{holding times} of a continuous time chain.
+\end{defn}
+
+The holding times of many continuous time chains are exponentially distributed.
+The following theorem provides sufficient conditions on $p_{ij}(\Delta t)$ for
+this.
+
+\begin{thm}
+    \label{thm:general-holding-times}
+    Consider a continuous time Markov chain such that the transition
+    probabilities satisfy
+    \begin{align*}
+    \sum_{\substack{k \\ k \neq i}} p_{ki}(\Delta t) &=
+        \alpha(i) \Delta t + o(\Delta t) \\
+%
+        p_{ii}(\Delta t) &= 1 - \alpha(i) \Delta t + o(\Delta t).
+    \end{align*}
+    for every state $i$, where $\alpha(i)$ is some nonnegative real-valued
+    function on the state space. Then the holding time $T_k$ when $X(W_k) = i$
+    is exponentially distributed with parameter $1/\alpha(i)$.
+\end{thm}
+
+It is possible to define a discrete time chain from the jump times of a
+continuous one. This discrete chain plays an important role in classifying
+continuous time states.
+
+\begin{defn}[Embedded chain]
+    \label{defn:embedded-chain}
+    Let $W_n$ be the time of the $n$th jump. Define the random variables $$Y_n
+    = X(W_n).$$ Then $\{Y_n\}$ is a discrete time Markov chain, named the
+    \emph{embedded chain} of the continuous time chain. Its transition matrix
+    $T$ is the \emph{embedded transition matrix}.
+\end{defn}
+
+The transition matrix $T$ gives the probability of a continuous time chain
+transitioning to any particular state at the jump times. This will be useful
+when simulating walks on continuous time chains.
+
+\begin{thm}
+    \label{thm:embedded-transition-matrix}
+    The embedded transition matrix $T$ satisfies the following: if $q_{ii} \neq
+    0$, then
+    \begin{align*}
+        t_{ii} &= 0, \\
+        t_{ji} &= -\frac{q_{ji}}{q_{ii}}, \quad i \neq j.
+    \end{align*}
+    If $q_{ii} = 0$, then
+    \begin{align*}
+        t_{ii} &= 1, \\
+        t_{ji} &= 0, \quad i \neq j.
+    \end{align*}
+\end{thm}
+
+States in the continuous case are classified in a similar manner as in the
+discrete case.
+
+\begin{defn}
+    \label{defn:continuous-classes}
+    Let $i$ and $j$ be states in a continuous time chain with transition
+    probabilities $p_{ij}(t)$.
+    \begin{itemize}
+        \item The state $i$ can be \emph{reached} by the state $j$, denoted $j
+        \to i$, iff $p_{ij}(t) > 0$ for some time $t \geq 0$.
+
+        \item We say that $j$ \emph{communicates with} $i$, denoted $i
+        \leftrightarrow j$, iff $i \to j$ and $j \to i$.
+
+        \item The relation $\leftrightarrow$ is an equivalence relation, and
+        its equivalence classes are called \emph{communication classes}. 
+
+        \item If a chain contains only one communication class, then the chain
+        is said to be \emph{irreducible}. 
+    \end{itemize}
+\end{defn}
+
+The many definitions up to this point are paid off by the following theorem.
+
+\begin{thm}
+    \label{thm:embedded-behavior}
+    For any states $i$ and $j$ of a continuous time chain, $i \to j$ in the
+    continuous chain iff $i \to j$ in the associated embedded chain. That is,
+    communication classes are identical in the continuous time chain and the
+    corresponding embedded chain.
+\end{thm}
+
+\section{Simple Death Process}
+\label{sec:simple_death_process}
+
+Suppose that, to demonstrate of some fact from probability, we stand in the
+middle of a room holding an open bag of marbles. While puzzling over the
+differences between combinations, permutations, and whether or not we
+\emph{really} care, we are struck with a fit a mathematical rage. We violently
+shake our bag, and marbles fly out of the opening one by one. The marbles first
+fly from the bag quickly, but soon fall slower and slower.  After some time,
+the marbles are all gone from the bag. With our fit over and our sanity
+restored, we become curious about our experiment gone wrong. How long were we
+standing there shaking our bag of marbles? If we were to repeat this
+marble-shaking process, how long might we \emph{expect} to stand there? To
+answer these questions, we can use a continuous time chain.
+
+Suppose that our bag starts with some fixed, finite amount of marbles. Denote
+the number of marbles in the bag as $i$. The rate that marbles fly out of the
+bag seems roughly proportional to the amount of marbles left, call it $di$ for
+some constant $d$. Since the marbles surely did not fall out at exactly this
+rate, our rate is not a \emph{rate} so much as it is a \emph{probability}.
+That is, the \emph{probability} of a marble flying out over a small enough time
+period $\Delta t$ is something like $di \Delta t$.
+
+With these assumptions, we can define a continuous time Markov chain to model
+this process, called the simple death process. Using it, we can investigate our
+marble-shaking activity.
+
+\begin{defn}[Simple Death Process]
+The \emph{simple death process} is a continuous time Markov chain on the state
+space $\{0, 1, 2, \dots\}$ with a single parameter $d > 0$ defined by the
+following infinitesimal transition probabilities:
+\begin{align*}
+    p_{i + j, i}(\Delta t) =
+    \begin{cases}
+        di \Delta t + o(\Delta t), & \text{if } j = -1, \\
+        1 - di \Delta t + o(\Delta t), & \text{if } j = 0, \\
+        o(\Delta t), & \text{if } j \leq -2, \\
+        0, & \text{if } j > 0. \\
+    \end{cases}
+\end{align*}
+\end{defn}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.8\linewidth]{plot_death}
+    \caption{Realizations of the death process along with an exponential decay
+    curve.}
+    \label{fig:plot_death}
+\end{figure}
+
+We will characterize the behavior of this chain (and hence of our
+marble-shaking process) using the embedded chain and its holding times.
+
+Our marbles are thrown from the bag at exponentially distributed times.
+
+\begin{thm}
+    \label{thm:holding-time}
+    Let $T_k$ be the $k$th holding time of the simple death process, $W_k$ the
+    time of the $k$th jump, and assume that $X(W_k) = i$. Then $T_k$ is
+    exponentially distributed with mean $1/di$.
+\end{thm}
+
+\begin{proof}
+Note that $$\sum_{k = 0, k \neq i}^\infty p_{ki}(\Delta t) = di \Delta t +
+o(\Delta t).$$ Therefore, Theorem~\ref{thm:general-holding-times} implies that
+the holding time $T_k$ when $X(W_k) = i$ is exponentially distributed with mean
+$1/di$.
+\end{proof}
+
+No matter how many marbles we start with, we will eventually have none left in
+the bag.
+
+\begin{thm}
+    \label{thm:limit-behavior}
+    The state $i = 0$ is absorbing, and the chain approaches this state from
+    any initial state.
+\end{thm}
+
+\begin{proof}
+We will prove this by using the embedded chain. We first need the generator
+matrix. Recall that $$q_{ij} = p_{ij}'(0) = \lim_{\Delta t \to 0^+}
+\frac{p_{ij}(\Delta t) - \delta_{ij}}{\Delta t}.$$ For any state $i > 0$, the
+following computations yield
+\begin{align*}
+    q_{i - 1, i} &= p_{i - 1, i}'(0)
+        = \lim_{\Delta t \to 0^+} \frac{p_{i - 1, i}(\Delta t)}{\Delta t}
+        = \lim_{\Delta t \to 0^+}
+            \left( di + \frac{o(\Delta t)}{\Delta t} \right) = di \\
+%
+    q_{i, i} &= p_{i, i}'(0)
+        = \lim_{\Delta t \to 0^+} \frac{p_{i, i}(\Delta t) - 1}{\Delta t}
+        = \lim_{\Delta t \to 0^+}
+            \left( -di + \frac{o(\Delta t)}{\Delta t} \right) = -di.
+\end{align*}
+(For $i = 0$, the later computation still holds.) Since $q_{ii} = -\sum_{k = 0,
+k \neq i}^\infty q_{ki} = 0$ and $q_{ij} \geq 0$ for $i \neq j$, it is clear
+that these are the only two (potentially) nonzero elements. For $i = 0$ we see
+that $q_{ii} = 0$, so the state $i = 0$ is absorbing. Thus our generator matrix
+is \[ Q =
+    \begin{bmatrix}
+        0 & d & 0 & 0 & 0 & \cdots \\
+        0 & -d & 2d & 0 & 0 & \cdots \\
+        0 & 0 & -2d & 3d & 0 & \cdots \\
+        0 & 0 & 0 & -3d & 4d & \cdots \\
+        0 & 0 & 0 & 0 & -4d & \cdots \\
+        \vdots & \vdots & \vdots & \vdots & \vdots & \ddots \\
+    \end{bmatrix}.
+\]
+Referring to Theorem~\ref{thm:embedded-transition-matrix}, we see that the
+transition matrix for our embedded chain is
+\[
+    T =
+    \begin{bmatrix}
+        1 & 1 & 0 & 0 & 0 & \cdots \\
+        0 & 0 & 1 & 0 & 0 & \cdots \\
+        0 & 0 & 0 & 1 & 0 & \cdots \\
+        0 & 0 & 0 & 0 & 1 & \cdots \\
+        0 & 0 & 0 & 0 & 0 & \cdots \\
+        \vdots & \vdots & \vdots & \vdots & \vdots & \ddots \\
+    \end{bmatrix}.
+\]
+That is, the only event in the chain is $i \to i - 1$, and the state $i = 0$ is
+absorbing, as we observed. For any initial state $s$ and any nonzero state $j$,
+the process will decrease below $j$ in $s - j$ steps. Thus, the process will
+decrease to zero and remain there from any initial state.
+\end{proof}
+
+How long might we wait while we fling marbles from the bag until they are all
+gone? And how long until we reach ten, or twenty marbles? The answer reveals an
+interesting connection to this process and the Harmonic numbers, defined by
+$H_n = \sum_{1 \leq k \leq n} k^{-1}$. These numbers are something like the
+discrete analog of the natural logarithm $\ln{x}$. This connection may not be
+\emph{as} suprising if we view this simple death process as the discrete analog
+of exponential decay, which is suggested by Figure~\ref{fig:plot_death}.
+
+\begin{thm}
+    \label{thm:mean-death-time}
+    Let $X(0) = s \geq 0$. Then the mean time to reach the state $s - j$ for $0
+    \leq j \leq s$ is $$\frac{H_s - H_{s - j}}{d}$$ where $H_n = \sum_{k = 1}^n
+    k^{-1}$ is the $n$th harmonic number, $n = 0, 1, 2, \dots$. In particular,
+    the mean time to extinction (state zero) is $H_s/d$.
+\end{thm}
+
+\begin{proof}
+From the transition matrix for the embedded chain, we see that the death
+process decreases by exactly one at each jump time. Thus, the time until
+reaching state $s - j$ from $s$ is the sum of the first $j$ holding times,
+denote this by $H$. That is, $$H = \sum_{0 \leq k < j} T_k.$$ At the $k$th
+holding time, we have decreased by $k$ states from $s$, so $X(W_k) = s - k$.
+Therefore $T_k$ is exponentially distributed with mean $1/d(s - k)$. It follows
+that
+\begin{align*}
+    E[H] = \sum_{0 \leq k < j} E[T_k]
+         &= \sum_{0 \leq k \leq j - 1} \frac{1}{d (s - k)} \\
+         &= \frac{1}{d} \sum_{0 \leq s - k \leq j - 1} \frac{1}{k} \\
+         &= \frac{1}{d} \sum_{s + 1 - j \leq k \leq s} \frac{1}{k} \\
+         &= \frac{H_s - H_{s - j}}{d}.
+\end{align*}
+Setting $j = s$, we see that the mean time to extinction is the desired
+$H_s/d$.
+\end{proof}
+
+Since this is something like the discrete analog of an exponential decay
+function, it may be interesting to compare this mean time to extinction with
+exponential decay models. Consider the exponential decay function $$f(t) = a
+e^{-rt}$$ where $a$ and $r$ are positive parameters describing the initial
+population size and rate of decay, respectively. The function $f$ has no zeros,
+but we may determine the time at which it reaches any population value below
+$a$, say $a - \epsilon$. Indeed, for any $\epsilon \in [0, a)$, we see that $a
+- \epsilon$ is reached at time $$t = \frac{\ln{a} - \ln(a - \epsilon)}{r}.$$
+Notice that this form is remarkably similar to the mean time to reach $s - j$
+derived above. We have essentially replaced the harmonic numbers with
+logarithms:
+\begin{align*}
+    E[H] &= \frac{H_s - H_{s - j}}{d} \\
+    t &= \frac{\ln{a} - \ln(a - \epsilon)}{r}.
+\end{align*}
+
+\section{Stochastic Predator Prey Models}
+\label{sec:stochastic_predator_prey}
+
+Our motivations will be less whimsical in this section than the marble-shaking
+process in Section~\ref{sec:simple_death_process}. We will construct a discrete
+analog to the Lotka--Volterra predator-prey equations for modeling the dynamics
+of two populations, where one preys on the other. To do this we will need a
+vague understanding of \emph{bivariate} continuous time Markov chains.
+
+\begin{defn}[Bivariate Markov Chain]
+    \label{defn:bivariate-process}
+    Let $(X(t), Y(t))$ be a pair of jointly distributed random variables on the
+    state space $\mathbf{Z} \times \mathbf{Z}$ where $\mathbf{Z} = \{\dots, -1,
+    0, 1, \dots\}$, indexed by time $t \geq 0$.
+    Denote their joint p.d.f.~as $$p_{(i, j)}(t) = P(X(t) = i, Y(t) = j).$$
+    Then $(X(t), Y(t))$ is a \emph{bivariate Markov process} iff the joint
+    p.d.f.~$p_{(i, j)}(t)$ does not depend on the values of the process at
+    previous times.
+\end{defn}
+
+Consider the following deterministic model:
+\begin{align}
+\label{eqn:lotka-volterra}
+\begin{split}
+    \dot{x} &= a_{00} x - a_{01} xy \\
+    \dot{y} &= a_{10} xy - a_{11} y.
+\end{split}
+\end{align}
+This is the Lotka--Volterra predator-prey system. It models the interactions of
+two populations, one of which benefits from interactions between the two
+(predators), and one that suffers from the same interactions (prey). The
+dynamics of the Lotka--Volterra system are well understood. For most initial
+conditions the predators and prey will enter a periodic relationship creating a
+closed cycle around a single equilibrium point in the $xy$ phase plane. A graph
+of one such solution is represented by the closed curve in the phase plane of
+Figure~\ref{fig:comparison}.
+
+\begin{figure}[p]
+    \centering
+    \begin{subfigure}[t]{.5\textwidth}
+        \includegraphics[width=\linewidth]{./comparison_phase}
+        \caption{Phase plane realization of the stochastic predator prey model
+        with $a_{00} = 10$, $a_{01} = 0.01$, $a_{10} = 0.01$, and $a_{11} =
+        10$. The deterministic model has an equilibrium point at $(1000,
+        1000)$. Both graphs begin at the same point.}
+    \end{subfigure}%
+    ~~~ % Add some space between the figures.
+    \begin{subfigure}[t]{.5\textwidth}
+        \includegraphics[width=\linewidth]{./comparison_time}
+        \caption{Time plot of predator and prey populations from the pictured
+        phase plane.}
+    \end{subfigure}
+    \caption{}
+    \label{fig:comparison}
+\end{figure}
+
+A common complaint with the Lotka--Volterra model is that it allows for
+populations to survive near-extinction. Populations in the Lotka--Volterra
+model that reach extremely small values are stuck in a closed cycle. They
+cannot go extinct. Some models attempt to correct this fact by introducing
+random variables. One such model, presented in \cite{mao2003asymptotic}, adds
+random variables to the differential equations in \eqref{eqn:lotka-volterra}.
+Rather than take this approach, we will present a continuous time bivariate
+Markov chain from \cite{allen2010introduction} that is analogous to
+\eqref{eqn:lotka-volterra}.
+
+\begin{defn}[Stochastic Predator Prey]
+    \label{defn:predator-prey}
+    The stochastic predator prey model is a continuous time bivariate chain
+    $\{(X(t), Y(t))\}$ defined by the following infinitesimal transition
+    probabilities:
+    \begin{align*}
+        p_{(i + m, j + n), (i, j)}(\Delta t) &= P(\Delta X(t) = m, \Delta Y(t) =
+        n \mid (X(t), Y(t)) = (i, j)) \\
+        &=
+        \begin{cases}
+            a_{00} i \Delta t + o(\Delta t), & \text{if } (m, n) = (1, 0) \\
+            a_{01} ij \Delta t + o(\Delta t), & \text{if } (m, n) = (-1, 0) \\
+            a_{10} ij \Delta t + o(\Delta t), & \text{if } (m, n) = (0, 1) \\
+            a_{11} j \Delta t + o(\Delta t), & \text{if } (m, n) = (0, -1) \\
+            1 - (a_{00}i + a_{01}ij + a_{10} ij + a_{11})\Delta t + o(\Delta
+                t), & \text{if} (m, n) = (0, 0) \\
+            0, & \text{otherwise.}
+        \end{cases}
+    \end{align*}
+    According to \cite{allen2010introduction}, the holding times are
+    exponentially distributed with mean $$\beta = \frac{1}{a_{00}i + a_{01}ij +
+    a_{10}ij + a_{11}j}.$$
+\end{defn}
+
+Determining the exact behavior of this stochastic system is outside of the
+scope of this paper. Instead, we will provide some simple qualitative analysis
+of some stochastic realizations of the model.
+
+\begin{figure}[p]
+    \centering
+    \begin{subfigure}[t]{.5\textwidth}
+        \includegraphics[width=.8\linewidth]{./equilibrium_phase}
+        \caption{Phase plane realization of the stochastic predator prey model
+        with $a_{00} = 10$, $a_{01} = 0.01$, $a_{10} = 0.01$, and $a_{11} =
+        10$. The deterministic model has an equilibrium point at $(1000,
+        1000)$, which is exactly where the pictured realization begins.}
+    \end{subfigure}%
+    ~~~
+    \begin{subfigure}[t]{.5\textwidth}
+        \includegraphics[width=\linewidth]{./equilibrium_time}
+        \caption{Time plot of predator and prey populations from the pictured
+        phase plane.}
+    \end{subfigure}
+    \caption{}
+    \label{fig:broken-eq-pts}
+\end{figure}
+
+Figure~\ref{fig:broken-eq-pts} shows two populations that begin exactly at an
+equilibrium point. In the deterministic model this would result in a stationary
+population. Figure~\ref{fig:broken-eq-pts} shows that the stochastic model
+violates this behavior. The populations jitter around the equilibrium point in
+patterns that look roughly like cycles in the deterministic model. In the
+deterministic model, populations will remain in the same closed cycle for all
+time unless some exterior force acts on them. The stochastic populations jump
+from cycle to cycle, behaving \emph{almost} periodically, but not exactly.
+
+\begin{figure}[p]
+    \centering
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{./violent_phase}
+        \caption{Phase plane realization of the stochastic predator prey model
+        with $a_{00} = 10$, $a_{01} = 0.1$, $a_{10} = 0.1$, and $a_{11} =
+        10$. The deterministic model has an equilibrium point at $(100, 100)$.
+        Both pictured solutions begin at the same point, slightly to the left
+        of and below $(100, 100)$.}
+    \end{subfigure}%
+    ~~~
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{./violent_time}
+        \caption{Time plot of predator and prey populations from the pictured
+        phase plane. The increasing amplitute of the populations in the first
+        solution indicate populations growing beyond reasonable limits,
+        resulting in their extinction.}
+    \end{subfigure}
+    \caption{}
+    \label{fig:violent-cycles}
+\end{figure}
+
+Figure~\ref{fig:violent-cycles} shows two solutions that begin at exactly the
+same point, close to the unique equilibrium point. In contrast to the
+deterministic model, the two solutions do not coincide. The first dies out at a
+finite time, while the second continues to hover close to the equilibrium
+point. The behavior of the stochastic model is much more violent than its
+deterministic counterpart. Both solutions jump from cycle to cycle, but the
+first jumped from the equilibrium point and was thrown too close to extinction
+to recover. This is a key difference from the deterministic model. Before it
+was \emph{impossible} for such populations to die out---now it is common.
+
+Figure~\ref{fig:violent-cycles} highlights another important property of the
+model. Solutions tend to gravitate towards equilibrium points, and will do so
+more violently the further they begin from them. An equilibrium point close to
+either of the axes will increase the chances that some random event will cause
+extinction. Had the equilibrium point in Figure~\ref{fig:violent-cycles} been
+further from the axes, it may be that the first population would have
+recovered, as we saw in Figure~\ref{fig:broken-eq-pts}.
+
+This stochastic model, though more difficult to analyze than its deterministic
+counterpart, may give more realistic results.
+
+\section{Conclusion and Further Work}
+\label{sec:further_work}
+
+We have presented two continuous time Markov chains from
+\cite{allen2010introduction}: the simple death process and the stochastic
+predator-prey model.
+
+The simple death process, used to model our marble-shaking exercise, was
+analyzed fairly well. The overall behavior of the process is completely
+determined, though it is possible that further questions could be asked. For
+example, we could add births into the process and introduce an ``elastic
+barrier'' around zero. Ultimately the dynamics would probably mirror the
+regular discrete time chain under similar conditions.
+
+The stochastic predator-prey model left mostly unanalyzed. Bivariate Markov
+chains are difficult to study due to their technical nature. Further work could
+delve more formally into stochastic processes and begin proving things about
+the dynamics of such systems. While we referenced \citet{allen2010introduction}
+exclusively for results, \cite{kao1997introduction, berger2012introduction,
+bremaud1998markov} may help in this regard.
+
+Alternatively, if we are done with these models, there other avenues to
+explore. We have left out many details of our model, and ignored interesting
+questions that could be asked. For example, Figure~\ref{fig:stacked-death}
+shows ten death processes from Section~\ref{sec:simple_death_process} with
+initial populations 1--5. The death rate of each process is set so that the
+processes all have the same expected extinction time. What is the probability
+that all processes will become extinct at exactly the same time? Rather than
+questions such as this, we could investigate applications of continuous time
+Markov chains, such as in Markov Chain Monte Carlo (MCMC) random sampling.
+
+\begin{figure}[b]
+    \centering
+    \includegraphics[width=\linewidth]{./future_question}
+    \caption{Plot of stacked death processes with initial populations $1, 2, 3,
+    4, 5$. The death rates are normalized so that every process has the same
+    expected extinction time 10.}
+    \label{fig:stacked-death}
+\end{figure}
+
+\pagebreak
+
+\bibliography{cite}
+
+\end{document}
